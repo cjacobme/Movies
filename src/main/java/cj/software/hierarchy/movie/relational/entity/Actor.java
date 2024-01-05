@@ -16,7 +16,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "actor")
-@SequenceGenerator(name = "genActor", sequenceName = "seq_actory", allocationSize = 1)
+@SequenceGenerator(name = "genActor", sequenceName = "seq_actor", allocationSize = 1)
 @DynamicInsert
 @DynamicUpdate
 public class Actor implements Serializable {
