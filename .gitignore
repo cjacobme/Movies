@@ -17,3 +17,4 @@ log/
 target/
 
 
+/src/main/schema/Postgres.ddl.md5s

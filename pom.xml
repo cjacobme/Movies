@@ -24,6 +24,9 @@
         <maven.build.timestamp.format>yyyy-MM-dd HH:mmZZ</maven.build.timestamp.format>
 
         <commons-lang3.version>3.13.0</commons-lang3.version>
+        <hibernate.version>5.6.7.Final</hibernate.version>
+        <hibernate-maven-plugin.version>2.1.1</hibernate-maven-plugin.version>
+        <maven-processor-plugin.version>4.5-jdk8</maven-processor-plugin.version>
         <spring-boot.version>2.7.7</spring-boot.version>
     </properties>
 
@@ -67,12 +70,30 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
         <!-- 3rd party -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${commons-lang3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
         </dependency>
 
         <!-- Test -->
@@ -94,6 +115,99 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <delimiters>
+                        <delimiter>@</delimiter>
+                    </delimiters>
+                    <useDefaultDelimiters>false</useDefaultDelimiters>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>copy-schema</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/schema</directory>
+                                </resource>
+                            </resources>
+                            <outputDirectory>${project.build.directory}/schema</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <version>${maven-processor-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/generated-sources/java/jpametamodel
+                            </outputDirectory>
+                            <processors>
+                                <processor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</processor>
+                            </processors>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.hibernate</groupId>
+                        <artifactId>hibernate-jpamodelgen</artifactId>
+                        <version>${hibernate.version}</version>
+                        <scope>compile</scope>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>sources</goal>
+                            <goal>resolve</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>sources</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${build-helper-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <source>${project.build.directory}/generated-sources/java/jpametamodel</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
@@ -101,15 +215,6 @@
                     <fork>true</fork>
                 </configuration>
                 <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                        <configuration>
-                            <classifier>spring-boot</classifier>
-                            <mainClass>com.eon.testautomation.jira.cleaner.spring.CleanerSpringApplication</mainClass>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>build-info</id>
                         <goals>
@@ -122,6 +227,43 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>schema-gen</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>de.juplo</groupId>
+                        <artifactId>hibernate-maven-plugin</artifactId>
+                        <version>${hibernate-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>create-postgres</id>
+                                <goals>
+                                    <goal>create</goal>
+                                </goals>
+                                <phase>generate-resources</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <driver>org.postgresql.Driver</driver>
+                            <dialect>org.hibernate.dialect.PostgreSQLDialect</dialect>
+                            <outputFile>${project.basedir}/src/main/schema/Postgres.ddl</outputFile>
+                            <scanClasses>true</scanClasses>
+                            <execute>false</execute>
+                            <format>true</format>
+                            <force>true</force>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>javax.xml.bind</groupId>
+                                <artifactId>jaxb-api</artifactId>
+                                <version>2.1</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>deploying</id>
             <build>

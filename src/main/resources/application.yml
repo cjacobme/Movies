@@ -1,0 +1,10 @@
+spring:
+  flyway:
+    enabled: true
+    locations:
+      - classpath:schema/update
+  datasource:
+    driverClassName: org.postgresql.Driver
+  jpa:
+    hibernate.ddl-auto: validate
+    show-sql: false
