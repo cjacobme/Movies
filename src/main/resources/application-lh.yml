@@ -1,0 +1,7 @@
+spring:
+  flyway:
+    url: jdbc:postgresql://localhost:5432/movie
+    user: movie
+  datasource:
+    url: jdbc:postgresql://localhost:5432/movie
+    username: movie
