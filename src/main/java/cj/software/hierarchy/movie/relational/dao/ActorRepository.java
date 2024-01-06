@@ -1,4 +1,4 @@
-package cj.software.hierarchy.movie.dao;
+package cj.software.hierarchy.movie.relational.dao;
 
 import cj.software.hierarchy.movie.relational.entity.Actor;
 import cj.software.hierarchy.movie.relational.entity.Actor_;
@@ -24,7 +24,7 @@ public class ActorRepository {
     private EntityManager entityManager;
 
     @Trace
-    public Actor findActorByNames(
+    public Actor searchActorByNames(
             @Trace
             String givenName,
 
@@ -40,13 +40,12 @@ public class ActorRepository {
         query.setMaxResults(2);
         List<Actor> resultSet = query.getResultList();
         int size = resultSet.size();
-        Actor result;
-        switch (size) {
-            case 0 -> result = null;
-            case 1 -> result = resultSet.get(0);
+        Actor result = switch (size) {
+            case 0 -> null;
+            case 1 -> resultSet.get(0);
             default -> throw new IllegalArgumentException(
                     String.format("%d actors with given name %s and family name %s found", size, givenName, familyName));
-        }
+        };
         return result;
     }
 
