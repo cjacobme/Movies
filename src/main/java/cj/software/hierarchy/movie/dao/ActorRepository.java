@@ -1,0 +1,52 @@
+package cj.software.hierarchy.movie.dao;
+
+import cj.software.hierarchy.movie.relational.entity.Actor;
+import cj.software.hierarchy.movie.relational.entity.Actor_;
+import cj.software.hierarchy.movie.spring.Trace;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.List;
+
+@Repository
+@Validated
+public class ActorRepository {
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Trace
+    public Actor findActorByNames(
+            @Trace
+            String givenName,
+
+            @Trace
+            String familyName) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Actor> criteriaQuery = cb.createQuery(Actor.class);
+        Root<Actor> from = criteriaQuery.from(Actor.class);
+        Predicate eqGiven = cb.equal(from.get(Actor_.GIVEN_NAME), givenName);
+        Predicate eqFamily = cb.equal(from.get(Actor_.FAMILY_NAME), familyName);
+        criteriaQuery.where(eqFamily, eqGiven);
+        TypedQuery<Actor> query = entityManager.createQuery(criteriaQuery);
+        query.setMaxResults(2);
+        List<Actor> resultSet = query.getResultList();
+        int size = resultSet.size();
+        Actor result;
+        switch (size) {
+            case 0 -> throw new IllegalArgumentException(
+                    String.format("no actor found for given name %s and family name %s", givenName, familyName));
+            case 1 -> result = resultSet.get(0);
+            default -> throw new IllegalArgumentException(
+                    String.format("%d actors with given name %s and family name %s found", size, givenName, familyName));
+        }
+        return result;
+    }
+}
