@@ -13,6 +13,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Repository
@@ -41,12 +42,26 @@ public class ActorRepository {
         int size = resultSet.size();
         Actor result;
         switch (size) {
-            case 0 -> throw new IllegalArgumentException(
-                    String.format("no actor found for given name %s and family name %s", givenName, familyName));
+            case 0 -> result = null;
             case 1 -> result = resultSet.get(0);
             default -> throw new IllegalArgumentException(
                     String.format("%d actors with given name %s and family name %s found", size, givenName, familyName));
         }
+        return result;
+    }
+
+    @Transactional
+    @Trace
+    public Actor createActor(
+            @Trace
+            String givenName,
+
+            @Trace
+            String familyName) {
+        Actor result = new Actor();
+        result.setGivenName(givenName);
+        result.setFamilyName(familyName);
+        entityManager.persist(result);
         return result;
     }
 }

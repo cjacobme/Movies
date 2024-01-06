@@ -20,6 +20,6 @@ public class RelationalInsertSpringBootApplication implements CommandLineRunner 
 
     @Override
     public void run(String... args) {
-        addRandomEntriesController.findTom();
+        addRandomEntriesController.createActorsForSleepless();
     }
 }

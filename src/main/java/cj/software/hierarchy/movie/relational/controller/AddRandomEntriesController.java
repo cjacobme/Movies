@@ -15,8 +15,23 @@ public class AddRandomEntriesController {
 
     private final Logger logger = LogManager.getFormatterLogger();
 
-    public void findTom() {
-        Actor actor = actorRepository.findActorByNames("Tom", "Hanks");
-        logger.info("Tom Hanks has id %d", actor.getId());
+    public void createActorsForSleepless() {
+        Actor tom = searchOrCreateActor("Tom", "Hanks");
+        Actor meg = searchOrCreateActor("Meg", "Ryan");
+    }
+
+    private Actor searchOrCreateActor(String givenName, String familyName) {
+        Actor found = actorRepository.findActorByNames(givenName, familyName);
+        Actor result;
+        if (found != null) {
+            logger.info("%s %s has id %d", givenName, familyName, found.getId());
+            result = found;
+        } else {
+            logger.info("%s %s not found", givenName, familyName);
+            Actor created = actorRepository.createActor(givenName, familyName);
+            logger.info("%s %s has id %d", givenName, familyName, created.getId());
+            result = created;
+        }
+        return result;
     }
 }
