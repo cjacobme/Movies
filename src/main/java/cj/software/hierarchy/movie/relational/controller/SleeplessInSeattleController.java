@@ -5,9 +5,9 @@ import cj.software.hierarchy.movie.relational.entity.Movie;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class AddSleeplessInSeattleController extends ControllerBase {
+public class SleeplessInSeattleController extends ControllerBase {
 
-    public void createActorsForSleepless() {
+    public void createAllParticipants() {
         Actor tom = searchOrCreateActor("Tom", "Hanks");
         Actor meg = searchOrCreateActor("Meg", "Ryan");
         Movie sleepless = searchOrCreateMovie("Sleepless in Seattle");
