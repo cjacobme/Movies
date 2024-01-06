@@ -1,5 +1,7 @@
 package cj.software.hierarchy.movie.relational.entity;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -75,5 +77,14 @@ public class Role implements Serializable {
 
     public int getVersion() {
         return version;
+    }
+
+    @Override
+    public String toString() {
+        ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                .append("id", id)
+                .append("name", name);
+        String result = builder.build();
+        return result;
     }
 }
