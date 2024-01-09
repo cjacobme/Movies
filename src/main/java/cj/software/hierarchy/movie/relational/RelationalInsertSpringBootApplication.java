@@ -1,5 +1,6 @@
 package cj.software.hierarchy.movie.relational;
 
+import cj.software.hierarchy.movie.relational.controller.ClarkePetersController;
 import cj.software.hierarchy.movie.relational.controller.HarryAndSallyController;
 import cj.software.hierarchy.movie.relational.controller.SleeplessInSeattleController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class RelationalInsertSpringBootApplication implements CommandLineRunner 
     @Autowired
     private HarryAndSallyController harryAndSallyController;
 
+    @Autowired
+    private ClarkePetersController clarkePetersController;
+
     public static void main(String[] args) {
         SpringApplication.run(RelationalInsertSpringBootApplication.class, args);
     }
@@ -26,5 +30,6 @@ public class RelationalInsertSpringBootApplication implements CommandLineRunner 
     public void run(String... args) {
         sleeplessInSeattleController.createAllParticipants();
         harryAndSallyController.createParticipants();
+        clarkePetersController.createParticipants();
     }
 }
