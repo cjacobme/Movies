@@ -3,6 +3,7 @@ package cj.software.hierarchy.movie.relational.dao;
 import cj.software.hierarchy.movie.relational.entity.Actor;
 import cj.software.hierarchy.movie.relational.entity.Actor_;
 import cj.software.hierarchy.movie.spring.Trace;
+import cj.software.hierarchy.movie.spring.TraceSize;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
 
@@ -14,6 +15,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -46,6 +49,17 @@ public class ActorRepository {
             default -> throw new IllegalArgumentException(
                     String.format("%d actors with given name %s and family name %s found", size, givenName, familyName));
         };
+        return result;
+    }
+
+    @TraceSize
+    @Transactional
+    public List<Actor> generateManyActors(Collection<Actor> actors) {
+        List<Actor> result = new ArrayList<>();
+        for (Actor actor : actors) {
+            entityManager.persist(actor);
+            result.add(actor);
+        }
         return result;
     }
 

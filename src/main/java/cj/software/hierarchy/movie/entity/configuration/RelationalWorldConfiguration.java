@@ -31,6 +31,10 @@ public class RelationalWorldConfiguration implements Serializable {
     private Range actorFamilyName;
 
     @NotNull
+    @Min(5)
+    private Integer actorGenerationBlockSize;
+
+    @NotNull
     @Min(1)
     private Integer minMovieNameLength;
 
@@ -84,6 +88,14 @@ public class RelationalWorldConfiguration implements Serializable {
 
     public void setActorFamilyName(Range actorFamilyName) {
         this.actorFamilyName = actorFamilyName;
+    }
+
+    public Integer getActorGenerationBlockSize() {
+        return actorGenerationBlockSize;
+    }
+
+    public void setActorGenerationBlockSize(Integer actorGenerationBlockSize) {
+        this.actorGenerationBlockSize = actorGenerationBlockSize;
     }
 
     public Integer getMinMovieNameLength() {
