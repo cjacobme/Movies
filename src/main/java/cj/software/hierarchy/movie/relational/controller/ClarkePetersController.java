@@ -15,7 +15,7 @@ public class ClarkePetersController extends ControllerBase {
         Movie flight2012 = searchOrCreateMovie("Flight (2012)");
         searchOrCreateRole("William Whitaker", denzel, flight2012);
         Actor bruce = searchOrCreateActor("Bruce", "Greenwood");
-        searchOrCreateRole("Charlie Anderson", bruce, flight2012);  // Charlie Anderson gets number 4
+        searchOrCreateRole("Charlie Anderson", bruce, flight2012);  // Bruce Greenwood gets number 4
         Movie challenger = searchOrCreateMovie("The Challenger");
         searchOrCreateRole("General Donald Kutyna", bruce, challenger);
         Actor william = searchOrCreateActor("William", "Hurt");
