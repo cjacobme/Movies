@@ -13,6 +13,12 @@ cj.software.movie:
     num-actors: 100000
     num-movies: 1000000
     roles-per-movie: 30
+    actor-family-name:
+      min: 5
+      max: 20
+    actor-given-name:
+      min: 8
+      max: 30
     min-actor-name-length: 5
     max-actor-name-length: 20
     min-movie-name-length: 12

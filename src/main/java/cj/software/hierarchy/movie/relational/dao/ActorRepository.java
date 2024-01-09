@@ -63,4 +63,15 @@ public class ActorRepository {
         entityManager.persist(result);
         return result;
     }
+
+    @Trace
+    public long getNumActors() {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> critQuery = cb.createQuery(Long.class);
+        Root<Actor> from = critQuery.from(Actor.class);
+        critQuery.select(cb.count(from));
+        TypedQuery<Long> query = entityManager.createQuery(critQuery);
+        long result = query.getSingleResult();
+        return result;
+    }
 }

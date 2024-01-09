@@ -1,5 +1,6 @@
 package cj.software.hierarchy.movie.entity.configuration;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.Serial;
@@ -22,12 +23,12 @@ public class RelationalWorldConfiguration implements Serializable {
     private Integer rolesPerMovie;
 
     @NotNull
-    @Min(1)
-    private Integer minActorNameLength;
+    @Valid
+    private Range actorGivenName;
 
     @NotNull
-    @Min(1)
-    private Integer maxActorNameLength;
+    @Valid
+    private Range actorFamilyName;
 
     @NotNull
     @Min(1)
@@ -69,20 +70,20 @@ public class RelationalWorldConfiguration implements Serializable {
         this.rolesPerMovie = rolesPerMovie;
     }
 
-    public Integer getMinActorNameLength() {
-        return minActorNameLength;
+    public Range getActorGivenName() {
+        return actorGivenName;
     }
 
-    public void setMinActorNameLength(Integer minActorNameLength) {
-        this.minActorNameLength = minActorNameLength;
+    public void setActorGivenName(Range actorGivenName) {
+        this.actorGivenName = actorGivenName;
     }
 
-    public Integer getMaxActorNameLength() {
-        return maxActorNameLength;
+    public Range getActorFamilyName() {
+        return actorFamilyName;
     }
 
-    public void setMaxActorNameLength(Integer maxActorNameLength) {
-        this.maxActorNameLength = maxActorNameLength;
+    public void setActorFamilyName(Range actorFamilyName) {
+        this.actorFamilyName = actorFamilyName;
     }
 
     public Integer getMinMovieNameLength() {

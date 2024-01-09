@@ -2,6 +2,7 @@ package cj.software.hierarchy.movie.relational;
 
 import cj.software.hierarchy.movie.relational.controller.ClarkePetersController;
 import cj.software.hierarchy.movie.relational.controller.HarryAndSallyController;
+import cj.software.hierarchy.movie.relational.controller.ManyDataController;
 import cj.software.hierarchy.movie.relational.controller.SleeplessInSeattleController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -22,6 +23,9 @@ public class RelationalInsertSpringBootApplication implements CommandLineRunner 
     @Autowired
     private ClarkePetersController clarkePetersController;
 
+    @Autowired
+    private ManyDataController manyDataController;
+
     public static void main(String[] args) {
         SpringApplication.run(RelationalInsertSpringBootApplication.class, args);
     }
@@ -31,5 +35,6 @@ public class RelationalInsertSpringBootApplication implements CommandLineRunner 
         sleeplessInSeattleController.createAllParticipants();
         harryAndSallyController.createParticipants();
         clarkePetersController.createParticipants();
+        manyDataController.generateParticipants();
     }
 }
