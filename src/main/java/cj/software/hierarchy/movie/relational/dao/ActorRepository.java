@@ -4,6 +4,10 @@ import cj.software.hierarchy.movie.relational.entity.Actor;
 import cj.software.hierarchy.movie.relational.entity.Actor_;
 import cj.software.hierarchy.movie.spring.Trace;
 import cj.software.hierarchy.movie.spring.TraceSize;
+import cj.software.util.function.PureFunction;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
 
@@ -22,6 +26,10 @@ import java.util.List;
 @Repository
 @Validated
 public class ActorRepository {
+    private final Logger logger = LogManager.getFormatterLogger();
+
+    @Autowired
+    private NativeQueryExecutor nativeQueryExecutor;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -87,5 +95,17 @@ public class ActorRepository {
         TypedQuery<Long> query = entityManager.createQuery(critQuery);
         long result = query.getSingleResult();
         return result;
+    }
+
+    public void deleteAndRestoreIndices(PureFunction interimFunction) throws Exception {
+        nativeQueryExecutor.executeUpdate("drop index if exists idxActorNames");
+        logger.info("index temporarily deleted");
+        try {
+            interimFunction.doit();
+            logger.info("restoring index now...");
+        } finally {
+            nativeQueryExecutor.executeUpdate("create index idxActorNames on actor (given_name, family_name);");
+            logger.info("index restored");
+        }
     }
 }

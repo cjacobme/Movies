@@ -31,7 +31,7 @@ public class RelationalInsertSpringBootApplication implements CommandLineRunner 
     }
 
     @Override
-    public void run(String... args) {
+    public void run(String... args) throws Exception {
         sleeplessInSeattleController.createAllParticipants();
         harryAndSallyController.createParticipants();
         clarkePetersController.createParticipants();

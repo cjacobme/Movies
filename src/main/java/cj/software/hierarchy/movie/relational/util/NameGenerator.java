@@ -5,12 +5,15 @@ import cj.software.hierarchy.movie.entity.configuration.Range;
 import cj.software.hierarchy.movie.entity.configuration.RelationalWorldConfiguration;
 import cj.software.hierarchy.movie.relational.entity.Actor;
 import cj.software.hierarchy.movie.spring.Trace;
+import cj.software.hierarchy.movie.spring.TraceAtLogLevel;
 import com.github.javafaker.service.FakeValuesService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.spi.StandardLevel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@TraceAtLogLevel(level = StandardLevel.DEBUG)
 public class NameGenerator {
     @Autowired
     private ConfigurationHolder configurationHolder;
@@ -21,7 +24,6 @@ public class NameGenerator {
     @Autowired
     private FakeValuesService fakeValuesService;
 
-    @Trace
     public Actor generateActor() {
         RelationalWorldConfiguration relationalWorldConfiguration = configurationHolder.getRelationalWorld();
         Range givenNameRange = relationalWorldConfiguration.getActorGivenName();

@@ -26,8 +26,8 @@ public class ManyDataController extends ControllerBase {
     @Autowired
     private NameGenerator nameGenerator;
 
-    public void generateParticipants() {
-        generateActors();
+    public void generateParticipants() throws Exception {
+        actorRepository.deleteAndRestoreIndices(this::generateActors);
     }
 
     private void generateActors() {
@@ -45,7 +45,7 @@ public class ManyDataController extends ControllerBase {
                 newActors.add(actor);
                 count++;
                 if (count >= blockSize) {
-                    logger.info("now persist them...");
+                    logger.info("now persist %d...", count);
                     actorRepository.generateManyActors(newActors);
                     newActors.clear();
                     count = 0;
