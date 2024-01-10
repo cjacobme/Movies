@@ -25,9 +25,12 @@ create sequence seq_role start 1 increment 1;
         movie_id int8 not null,
         primary key (id)
     );
+create index idxActorNames on actor (given_name, family_name);
+create index idxMovieTitle on movie (title);
 
     alter table movie 
         add constraint UK_o6ifx5x4vtwfrpu1a42l8u81w unique (title);
+create index idxRole on role (name, movie_id, actor_id);
 
     alter table role 
         add constraint FKhcvuc3dt3u55owiv7hblb5lfe 
