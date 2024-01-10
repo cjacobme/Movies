@@ -9,6 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -17,7 +18,11 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "movie")
+@Table(
+        name = "movie",
+        indexes = {
+                @Index(name = "idxMovieTitle", columnList = "title")
+        })
 @SequenceGenerator(name = "genMovie", sequenceName = "seq_movie", allocationSize = 1)
 @DynamicUpdate
 @DynamicInsert
