@@ -3,6 +3,11 @@ package cj.software.hierarchy.movie.relational.dao;
 import cj.software.hierarchy.movie.relational.entity.Movie;
 import cj.software.hierarchy.movie.relational.entity.Movie_;
 import cj.software.hierarchy.movie.spring.Trace;
+import cj.software.hierarchy.movie.spring.TraceSize;
+import cj.software.util.function.PureFunction;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -13,10 +18,16 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Repository
 public class MovieRepository {
+    private final Logger logger = LogManager.getFormatterLogger();
+
+    @Autowired
+    private NativeQueryExecutor nativeQueryExecutor;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -43,6 +54,17 @@ public class MovieRepository {
         return result;
     }
 
+    @Trace
+    public long getNumMovies() {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> critQuery = cb.createQuery(Long.class);
+        Root<Movie> from = critQuery.from(Movie.class);
+        critQuery.select(cb.count(from));
+        TypedQuery<Long> query = entityManager.createQuery(critQuery);
+        long result = query.getSingleResult();
+        return result;
+    }
+
     @Transactional
     @Trace
     public Movie createMovie(
@@ -52,5 +74,27 @@ public class MovieRepository {
         result.setTitle(title);
         entityManager.persist(result);
         return result;
+    }
+
+    @Transactional
+    @TraceSize
+    public List<Movie> generateManyMovies(Collection<Movie> movies) {
+        List<Movie> result = new ArrayList<>();
+        for (Movie movie : movies) {
+            entityManager.persist(movie);
+            result.add(movie);
+        }
+        return result;
+    }
+
+    public void deleteAndRestoreIndices(PureFunction pureFunction) throws Exception {
+        nativeQueryExecutor.executeUpdate("drop index if exists idxMovieTitle");
+        logger.info("index temporarily deleted");
+        try {
+            pureFunction.doit();
+            logger.info("restoring index now...");
+        } finally {
+            nativeQueryExecutor.executeUpdate("create index idxMovieTitle on movie (title)");
+        }
     }
 }

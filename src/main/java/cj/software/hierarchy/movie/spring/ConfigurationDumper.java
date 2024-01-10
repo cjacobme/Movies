@@ -44,6 +44,7 @@ public class ConfigurationDumper implements InitializingBean {
                     String.format(RANGE_FORMAT, configuration.getMinMovieNameLength(), configuration.getMaxMovieNameLength()));
             logger.info(STRING_FORMAT, "role name length",
                     String.format(RANGE_FORMAT, configuration.getMinRoleNameLength(), configuration.getMaxRoleNameLength()));
+            logger.info(INT_FORMAT, "block size for movie generation", configuration.getMovieGenerationBlockSize());
         }
     }
 }

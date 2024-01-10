@@ -44,6 +44,10 @@ public class RelationalWorldConfiguration implements Serializable {
 
     @NotNull
     @Min(1)
+    private Integer movieGenerationBlockSize;
+
+    @NotNull
+    @Min(1)
     private Integer minRoleNameLength;
 
     @NotNull
@@ -112,6 +116,14 @@ public class RelationalWorldConfiguration implements Serializable {
 
     public void setMaxMovieNameLength(Integer maxMovieNameLength) {
         this.maxMovieNameLength = maxMovieNameLength;
+    }
+
+    public Integer getMovieGenerationBlockSize() {
+        return movieGenerationBlockSize;
+    }
+
+    public void setMovieGenerationBlockSize(Integer movieGenerationBlockSize) {
+        this.movieGenerationBlockSize = movieGenerationBlockSize;
     }
 
     public Integer getMinRoleNameLength() {

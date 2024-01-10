@@ -24,5 +24,6 @@ cj.software.movie:
     max-actor-name-length: 20
     min-movie-name-length: 12
     max-movie-name-length: 30
+    movie-generation-block-size: 100
     min-role-name-length: 10
     max-role-name-length: 20
