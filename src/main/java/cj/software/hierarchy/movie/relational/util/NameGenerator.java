@@ -38,7 +38,7 @@ public class NameGenerator {
         int min = range.getMin();
         int max = range.getMax();
         int length = randomService.getRandomBetween(min, max);
-        String generated = generate(length, 1);
+        String generated = generate(length);
         String result = StringUtils.capitalize(generated);
         return result;
     }
@@ -49,24 +49,27 @@ public class NameGenerator {
         int min = relationalWorldConfiguration.getMinMovieNameLength();
         int max = relationalWorldConfiguration.getMaxMovieNameLength();
         int length = randomService.getRandomBetween(min, max);
+        String first = generate(length);
+        StringBuilder sb = new StringBuilder(first);
         int numWords = randomService.getRandomBetween(2, 7);
-        String result = generate(length, numWords);
+        for (int iWord = 1; iWord < numWords; iWord++) {
+            length = randomService.getRandomBetween(min, max);
+            String word = generate(length);
+            sb.append(" ").append(word);
+        }
+        String result = sb.toString();
         return result;
     }
 
-    private String generate(int length, int numWords) {
-        String pattern = generatePattern(length, numWords);
+    private String generate(int length) {
+        String pattern = generatePattern(length);
         String result = fakeValuesService.letterify(pattern);
         return result;
     }
 
-    private String generatePattern(int length, int numWords) {
+    private String generatePattern(int length) {
         StringBuilder sb = new StringBuilder();
         sb.append("?".repeat(Math.max(0, length)));
-        for (int iWord = 0; iWord < numWords - 1; iWord++) {
-            int position = randomService.getRandom(length);
-            sb.setCharAt(position, ' ');
-        }
         String result = sb.toString();
         return result;
     }
