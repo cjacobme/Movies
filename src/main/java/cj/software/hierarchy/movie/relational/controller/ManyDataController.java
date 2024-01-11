@@ -102,8 +102,7 @@ public class ManyDataController extends ControllerBase {
         int count = 0;
         for (int iMovie = 0; iMovie < numToBeBuilt; iMovie++) {
             String title = nameGenerator.generateMovieTitle();
-            Movie movie = new Movie();
-            movie.setTitle(title);
+            Movie movie = new Movie(title);
             newMovies.add(movie);
             count++;
             if (count >= blockSize) {
@@ -121,7 +120,7 @@ public class ManyDataController extends ControllerBase {
 
     private void generateRoles() {
         int numActors = (int) actorRepository.getNumActors();
-        movieRepository.iterateAll(this::checkRolesOfMovie, numActors);
+        movieRepository.iterateAllRolesNotAdded(this::checkRolesOfMovie, numActors);
     }
 
     private void checkRolesOfMovie(Movie movie, Integer numActors) {
@@ -143,7 +142,7 @@ public class ManyDataController extends ControllerBase {
                 role.setActor(actor);
                 newRoles.add(role);
             }
-            roleRepository.saveManyRoles(newRoles);
+            roleRepository.saveManyRoles(movie, newRoles);
         }
     }
 }

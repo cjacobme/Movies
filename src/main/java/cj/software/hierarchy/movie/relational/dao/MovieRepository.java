@@ -67,13 +67,24 @@ public class MovieRepository {
         return result;
     }
 
+    private int getNumMoviesNotRolesAdded() {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> critQuery = cb.createQuery(Long.class);
+        Root<Movie> from = critQuery.from(Movie.class);
+        Predicate roleNotAdded = cb.equal(from.get(Movie_.ROLES_ADDED), false);
+        critQuery.select(cb.count(from)).where(roleNotAdded);
+        TypedQuery<Long> query = entityManager.createQuery(critQuery);
+        long size = query.getSingleResult();
+        int result = (int) size;
+        return result;
+    }
+
     @Transactional
     @Trace
     public Movie createMovie(
             @Trace
             String title) {
-        Movie result = new Movie();
-        result.setTitle(title);
+        Movie result = new Movie(title);
         entityManager.persist(result);
         return result;
     }
@@ -100,25 +111,25 @@ public class MovieRepository {
         }
     }
 
-    public <T> void iterateAll(BiConsumer<Movie, T> consumer, T additionalInfo) {
-        int numMovies = (int) this.getNumMovies();
+    public <T> void iterateAllRolesNotAdded(BiConsumer<Movie, T> consumer, T additionalInfo) {
+        int numMoviesNotRolesAdded = this.getNumMoviesNotRolesAdded();
         int pageSize = 10;
-        int totalCounter = 0;
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Movie> critQuery = cb.createQuery(Movie.class);
         Root<Movie> from = critQuery.from(Movie.class);
         Order orderId = cb.asc(from.get(Movie_.id));
-        critQuery.select(from).orderBy(orderId);
+        Predicate roleNotAdded = cb.equal(from.get(Movie_.ROLES_ADDED), false);
+        critQuery.select(from).where(roleNotAdded).orderBy(orderId);
         ConsumerSender<T> consumerSender = new ConsumerSender<>(consumer, additionalInfo);
-        while (totalCounter < numMovies) {
+        while (numMoviesNotRolesAdded > 0) {
             TypedQuery<Movie> query = entityManager.createQuery(critQuery);
-            query.setFirstResult(totalCounter);
+            query.setFirstResult(0);
             query.setMaxResults(pageSize);
             List<Movie> movies = query.getResultList();
             for (Movie movie : movies) {
                 consumerSender.forward(movie);
-                totalCounter++;
             }
+            numMoviesNotRolesAdded = this.getNumMoviesNotRolesAdded();
         }
     }
 

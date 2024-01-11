@@ -39,8 +39,20 @@ public class Movie implements Serializable {
     private int version;
 
     @NotBlank
-    @Column(name = "title", nullable = false, unique = true)
-    private String title;
+    @Column(name = "title", nullable = false, updatable = false, unique = true)
+    private final String title;
+
+    @Column(name = "roles_added", nullable = false)
+    private boolean rolesAdded;
+
+    Movie() {
+        // default constructor needed for JPA
+        title = "default";
+    }
+
+    public Movie(String title) {
+        this.title = title;
+    }
 
     public Long getId() {
         return id;
@@ -54,8 +66,12 @@ public class Movie implements Serializable {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public boolean isRolesAdded() {
+        return rolesAdded;
+    }
+
+    public void setRolesAdded(boolean rolesAdded) {
+        this.rolesAdded = rolesAdded;
     }
 
     @Override

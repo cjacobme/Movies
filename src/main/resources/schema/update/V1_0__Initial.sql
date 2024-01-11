@@ -12,6 +12,7 @@ create sequence seq_role start 1 increment 1;
 
     create table movie (
         id int8 not null,
+        roles_added boolean not null,
         title varchar(255) not null,
         jpa_version int4 not null,
         primary key (id)

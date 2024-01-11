@@ -88,14 +88,16 @@ public class RoleRepository {
         return result;
     }
 
-    @Transactional()
+    @Transactional
     @Trace
-    public int saveManyRoles(List<Role> roles) {
+    public int saveManyRoles(Movie movie, List<Role> roles) {
         int result = 0;
         for (Role role : roles) {
             entityManager.persist(role);
             result++;
         }
+        movie.setRolesAdded(true);
+        entityManager.merge(movie);
         return result;
     }
 }
