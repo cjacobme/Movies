@@ -36,6 +36,16 @@ public class NameGenerator {
         return result;
     }
 
+    public String generateRoleName() {
+        RelationalWorldConfiguration relationalWorldConfiguration = configurationHolder.getRelationalWorld();
+        Range givenNameRange = relationalWorldConfiguration.getActorGivenName();
+        Range familyNameRange = relationalWorldConfiguration.getActorFamilyName();
+        String givenName = generate(givenNameRange);
+        String familyName = generate(familyNameRange);
+        String result = givenName + " " + familyName;
+        return result;
+    }
+
     private String generate(Range range) {
         int min = range.getMin();
         int max = range.getMax();

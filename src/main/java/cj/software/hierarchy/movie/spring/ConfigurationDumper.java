@@ -36,7 +36,8 @@ public class ConfigurationDumper implements InitializingBean {
         if (logger.isInfoEnabled()) {
             logger.info(INT_FORMAT, "number of actors", configuration.getNumActors());
             logger.info(INT_FORMAT, "number of movies", configuration.getNumMovies());
-            logger.info(INT_FORMAT, "average number of roles / movie", configuration.getRolesPerMovie());
+            logger.info(INT_FORMAT, "min number of roles / movie", configuration.getMinRolesPerMovie());
+            logger.info(INT_FORMAT, "max number of roles / movie", configuration.getMaxRolesPerMovie());
             logger.info(STRING_FORMAT, "actor given name length", configuration.getActorGivenName());
             logger.info(STRING_FORMAT, "actor family name length", configuration.getActorFamilyName());
             logger.info(INT_FORMAT, "block size for actor generation", configuration.getActorGenerationBlockSize());

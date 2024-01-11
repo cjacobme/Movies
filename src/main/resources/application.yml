@@ -12,7 +12,8 @@ cj.software.movie:
   relational-world:
     num-actors: 100000
     num-movies: 1000000
-    roles-per-movie: 30
+    min-roles-per-movie: 25
+    max-roles-per-movie: 35
     actor-family-name:
       min: 5
       max: 20

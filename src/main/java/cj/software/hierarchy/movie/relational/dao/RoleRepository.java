@@ -87,4 +87,15 @@ public class RoleRepository {
         long result = query.getSingleResult();
         return result;
     }
+
+    @Transactional()
+    @Trace
+    public int saveManyRoles(List<Role> roles) {
+        int result = 0;
+        for (Role role : roles) {
+            entityManager.persist(role);
+            result++;
+        }
+        return result;
+    }
 }

@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.stream.Stream;
 
 @Repository
 public class MovieRepository {
@@ -101,30 +100,39 @@ public class MovieRepository {
         }
     }
 
-    @Transactional(readOnly = true)
-    public void iterateAll(BiConsumer<Movie, Long> consumer) {
+    public <T> void iterateAll(BiConsumer<Movie, T> consumer, T additionalInfo) {
+        int numMovies = (int) this.getNumMovies();
+        int pageSize = 10;
+        int totalCounter = 0;
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Movie> critQuery = cb.createQuery(Movie.class);
         Root<Movie> from = critQuery.from(Movie.class);
         Order orderId = cb.asc(from.get(Movie_.id));
         critQuery.select(from).orderBy(orderId);
-        TypedQuery<Movie> query = entityManager.createQuery(critQuery);
-        Stream<Movie> resultStream = query.getResultStream();
-        ConsumerSender consumerSender = new ConsumerSender(consumer);
-        resultStream.forEach(consumerSender::forward);
+        ConsumerSender<T> consumerSender = new ConsumerSender<>(consumer, additionalInfo);
+        while (totalCounter < numMovies) {
+            TypedQuery<Movie> query = entityManager.createQuery(critQuery);
+            query.setFirstResult(totalCounter);
+            query.setMaxResults(pageSize);
+            List<Movie> movies = query.getResultList();
+            for (Movie movie : movies) {
+                consumerSender.forward(movie);
+                totalCounter++;
+            }
+        }
     }
 
-    private static class ConsumerSender {
-        private final BiConsumer<Movie, Long> biConsumer;
-        private long counter = 0L;
+    private static class ConsumerSender<T> {
+        private final BiConsumer<Movie, T> biConsumer;
+        private final T additionalInfo;
 
-        ConsumerSender(BiConsumer<Movie, Long> biConsumer) {
+        ConsumerSender(BiConsumer<Movie, T> biConsumer, T additionalInfo) {
             this.biConsumer = biConsumer;
+            this.additionalInfo = additionalInfo;
         }
 
         void forward(Movie movie) {
-            biConsumer.accept(movie, counter);
-            counter++;
+            biConsumer.accept(movie, additionalInfo);
         }
     }
 }

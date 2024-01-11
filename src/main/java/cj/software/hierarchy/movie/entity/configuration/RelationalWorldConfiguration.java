@@ -20,7 +20,11 @@ public class RelationalWorldConfiguration implements Serializable {
 
     @NotNull
     @Min(1)
-    private Integer rolesPerMovie;
+    private Integer minRolesPerMovie;
+
+    @NotNull
+    @Min(2)
+    private Integer maxRolesPerMovie;
 
     @NotNull
     @Valid
@@ -70,12 +74,20 @@ public class RelationalWorldConfiguration implements Serializable {
         this.numMovies = numMovies;
     }
 
-    public Integer getRolesPerMovie() {
-        return rolesPerMovie;
+    public Integer getMinRolesPerMovie() {
+        return minRolesPerMovie;
     }
 
-    public void setRolesPerMovie(Integer rolesPerMovie) {
-        this.rolesPerMovie = rolesPerMovie;
+    public void setMinRolesPerMovie(Integer minRolesPerMovie) {
+        this.minRolesPerMovie = minRolesPerMovie;
+    }
+
+    public Integer getMaxRolesPerMovie() {
+        return maxRolesPerMovie;
+    }
+
+    public void setMaxRolesPerMovie(Integer maxRolesPerMovie) {
+        this.maxRolesPerMovie = maxRolesPerMovie;
     }
 
     public Range getActorGivenName() {

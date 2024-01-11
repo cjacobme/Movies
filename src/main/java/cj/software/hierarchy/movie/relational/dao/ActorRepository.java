@@ -3,10 +3,12 @@ package cj.software.hierarchy.movie.relational.dao;
 import cj.software.hierarchy.movie.relational.entity.Actor;
 import cj.software.hierarchy.movie.relational.entity.Actor_;
 import cj.software.hierarchy.movie.spring.Trace;
+import cj.software.hierarchy.movie.spring.TraceAtLogLevel;
 import cj.software.hierarchy.movie.spring.TraceSize;
 import cj.software.util.function.PureFunction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.spi.StandardLevel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
@@ -16,6 +18,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
@@ -107,5 +110,19 @@ public class ActorRepository {
             nativeQueryExecutor.executeUpdate("create index idxActorNames on actor (given_name, family_name);");
             logger.info("index restored");
         }
+    }
+
+    @TraceAtLogLevel(level = StandardLevel.DEBUG)
+    public Actor selectRandomActor(int index) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Actor> critQuery = cb.createQuery(Actor.class);
+        Root<Actor> from = critQuery.from(Actor.class);
+        Order idAsc = cb.asc(from.get(Actor_.id));
+        critQuery.select(from).orderBy(idAsc);
+        TypedQuery<Actor> query = entityManager.createQuery(critQuery);
+        query.setMaxResults(1);
+        query.setFirstResult(index);
+        Actor result = query.getSingleResult();
+        return result;
     }
 }
