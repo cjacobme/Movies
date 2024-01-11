@@ -4,6 +4,7 @@ import cj.software.hierarchy.movie.entity.configuration.ConfigurationHolder;
 import cj.software.hierarchy.movie.entity.configuration.RelationalWorldConfiguration;
 import cj.software.hierarchy.movie.relational.dao.ActorRepository;
 import cj.software.hierarchy.movie.relational.dao.MovieRepository;
+import cj.software.hierarchy.movie.relational.dao.RoleRepository;
 import cj.software.hierarchy.movie.relational.entity.Actor;
 import cj.software.hierarchy.movie.relational.entity.Movie;
 import cj.software.hierarchy.movie.relational.util.NameGenerator;
@@ -31,40 +32,60 @@ public class ManyDataController extends ControllerBase {
     @Autowired
     private NameGenerator nameGenerator;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
     public void generateParticipants() throws Exception {
-        actorRepository.deleteAndRestoreIndices(this::generateActors);
-        movieRepository.deleteAndRestoreIndices(this::generateMovies);
+        generateActors();
+        generateMovies();
+        generateRoles();
     }
 
-    private void generateActors() {
+    private void generateActors() throws Exception {
         long numExistingActors = actorRepository.getNumActors();
         RelationalWorldConfiguration relationalWorld = configurationHolder.getRelationalWorld();
         int numActors = relationalWorld.getNumActors();
         if (numExistingActors < numActors) {
-            int blockSize = relationalWorld.getActorGenerationBlockSize();
-            Collection<Actor> newActors = new ArrayList<>();
-            int numToBeBuild = numActors - (int) numExistingActors;
-            logger.info("%d actors have to be built", numToBeBuild);
-            int count = 0;
-            for (int iActor = 0; iActor < numToBeBuild; iActor++) {
-                Actor actor = nameGenerator.generateActor();
-                newActors.add(actor);
-                count++;
-                if (count >= blockSize) {
-                    logger.info("now persist %d actors...", count);
-                    actorRepository.generateManyActors(newActors);
-                    newActors.clear();
-                    count = 0;
-                }
-            }
-            if (count > 0) {
-                logger.info("now persist remaining %d actors...", count);
-                actorRepository.generateManyActors(newActors);
-            }
+            actorRepository.deleteAndRestoreIndices(this::generateMissingActors);
         }
     }
 
-    private void generateMovies() {
+    private void generateMissingActors() {
+        long numExistingActors = actorRepository.getNumActors();
+        RelationalWorldConfiguration relationalWorld = configurationHolder.getRelationalWorld();
+        int numActors = relationalWorld.getNumActors();
+        int blockSize = relationalWorld.getActorGenerationBlockSize();
+        Collection<Actor> newActors = new ArrayList<>();
+        int numToBeBuild = numActors - (int) numExistingActors;
+        logger.info("%d actors have to be built", numToBeBuild);
+        int count = 0;
+        for (int iActor = 0; iActor < numToBeBuild; iActor++) {
+            Actor actor = nameGenerator.generateActor();
+            newActors.add(actor);
+            count++;
+            if (count >= blockSize) {
+                logger.info("now persist %d actors...", count);
+                actorRepository.generateManyActors(newActors);
+                newActors.clear();
+                count = 0;
+            }
+        }
+        if (count > 0) {
+            logger.info("now persist remaining %d actors...", count);
+            actorRepository.generateManyActors(newActors);
+        }
+    }
+
+    private void generateMovies() throws Exception {
+        long numExistingMovies = movieRepository.getNumMovies();
+        RelationalWorldConfiguration relationalWorld = configurationHolder.getRelationalWorld();
+        int numMovies = relationalWorld.getNumMovies();
+        if (numExistingMovies < numMovies) {
+            movieRepository.deleteAndRestoreIndices(this::generateMissingMovies);
+        }
+    }
+
+    private void generateMissingMovies() {
         long numExistingMovies = movieRepository.getNumMovies();
         RelationalWorldConfiguration relationalWorld = configurationHolder.getRelationalWorld();
         int numMovies = relationalWorld.getNumMovies();
@@ -92,5 +113,14 @@ public class ManyDataController extends ControllerBase {
                 movieRepository.generateManyMovies(newMovies);
             }
         }
+    }
+
+    private void generateRoles() {
+        movieRepository.iterateAll(this::checkRolesOfMovie);
+    }
+
+    private void checkRolesOfMovie(Movie movie, long counter) {
+        long numRoles = roleRepository.determineNumRolesForMovie(movie);
+        logger.info("%8d %d %s", counter, numRoles, movie);
     }
 }

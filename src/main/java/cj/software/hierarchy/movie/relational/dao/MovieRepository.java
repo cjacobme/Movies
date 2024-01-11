@@ -9,18 +9,21 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 @Repository
 public class MovieRepository {
@@ -95,6 +98,33 @@ public class MovieRepository {
             logger.info("restoring index now...");
         } finally {
             nativeQueryExecutor.executeUpdate("create index idxMovieTitle on movie (title)");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public void iterateAll(BiConsumer<Movie, Long> consumer) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Movie> critQuery = cb.createQuery(Movie.class);
+        Root<Movie> from = critQuery.from(Movie.class);
+        Order orderId = cb.asc(from.get(Movie_.id));
+        critQuery.select(from).orderBy(orderId);
+        TypedQuery<Movie> query = entityManager.createQuery(critQuery);
+        Stream<Movie> resultStream = query.getResultStream();
+        ConsumerSender consumerSender = new ConsumerSender(consumer);
+        resultStream.forEach(consumerSender::forward);
+    }
+
+    private static class ConsumerSender {
+        private final BiConsumer<Movie, Long> biConsumer;
+        private long counter = 0L;
+
+        ConsumerSender(BiConsumer<Movie, Long> biConsumer) {
+            this.biConsumer = biConsumer;
+        }
+
+        void forward(Movie movie) {
+            biConsumer.accept(movie, counter);
+            counter++;
         }
     }
 }
