@@ -4,6 +4,7 @@ import cj.software.hierarchy.movie.relational.controller.ClarkePetersController;
 import cj.software.hierarchy.movie.relational.controller.HarryAndSallyController;
 import cj.software.hierarchy.movie.relational.controller.ManyDataController;
 import cj.software.hierarchy.movie.relational.controller.SleeplessInSeattleController;
+import cj.software.hierarchy.movie.relational.entity.Actor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -34,7 +35,7 @@ public class RelationalInsertSpringBootApplication implements CommandLineRunner 
     public void run(String... args) throws Exception {
         sleeplessInSeattleController.createAllParticipants();
         harryAndSallyController.createParticipants();
-        clarkePetersController.createParticipants();
-        manyDataController.generateParticipants();
+        Actor lastActor = clarkePetersController.createParticipants();
+        manyDataController.generateParticipants(lastActor);
     }
 }

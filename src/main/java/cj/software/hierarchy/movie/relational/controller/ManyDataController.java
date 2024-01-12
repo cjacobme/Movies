@@ -41,10 +41,10 @@ public class ManyDataController extends ControllerBase {
     @Autowired
     private RandomService randomService;
 
-    public void generateParticipants() throws Exception {
+    public void generateParticipants(Actor lastActor) throws Exception {
         generateActors();
         generateMovies();
-        generateRoles();
+        generateRoles(lastActor);
     }
 
     private void generateActors() throws Exception {
@@ -118,12 +118,30 @@ public class ManyDataController extends ControllerBase {
         }
     }
 
-    private void generateRoles() {
-        int numActors = (int) actorRepository.getNumActors();
-        movieRepository.iterateAllRolesNotAdded(this::checkRolesOfMovie, numActors);
+    private record ActorIdRange(long lastActorId, int numActors) {
+
     }
 
-    private void checkRolesOfMovie(Movie movie, Integer numActors) {
+    private void generateRoles(Actor lastActor) {
+        int numActors = (int) actorRepository.getNumActors();
+        ActorIdRange actorIdRange = new ActorIdRange(lastActor.getId(), numActors);
+        movieRepository.iterateAllRolesNotAdded(this::checkRolesOfMovie, actorIdRange);
+    }
+
+    private Actor selectRandomActor(ActorIdRange actorIdRange) {
+        int numActors = actorIdRange.numActors();
+        long lastActorId = actorIdRange.lastActorId();
+        int actorIndex = randomService.getRandom(numActors);
+        Actor result = actorRepository.selectRandomActor(actorIndex);
+        while (result.getId() <= lastActorId) {
+            logger.debug("Actor %s may not be used", result);
+            actorIndex = randomService.getRandom(numActors);
+            result = actorRepository.selectRandomActor(actorIndex);
+        }
+        return result;
+    }
+
+    private void checkRolesOfMovie(Movie movie, ActorIdRange actorIdRange) {
         long numExistingRoles = roleRepository.determineNumRolesForMovie(movie);
         RelationalWorldConfiguration realationalWorld = configurationHolder.getRelationalWorld();
         int min = realationalWorld.getMinRolesPerMovie();
@@ -134,8 +152,7 @@ public class ManyDataController extends ControllerBase {
             List<Role> newRoles = new ArrayList<>();
             for (int iRole = 0; iRole < numToBeBuilt; iRole++) {
                 String name = nameGenerator.generateRoleName();
-                int actorIndex = randomService.getRandom(numActors);
-                Actor actor = actorRepository.selectRandomActor(actorIndex);
+                Actor actor = selectRandomActor(actorIdRange);
                 Role role = new Role();
                 role.setName(name);
                 role.setMovie(movie);

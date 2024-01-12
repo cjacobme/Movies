@@ -6,7 +6,13 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class ClarkePetersController extends ControllerBase {
-    public void createParticipants() {
+
+    /**
+     * creates some participants to set up a graph that is a little bit more complicated
+     *
+     * @return the last created Actor <i>Clark Peters</i>. His id should not be used for further role assignments.
+     */
+    public Actor createParticipants() {
         Actor meg = searchOrCreateActor("Meg", "Ryan"); // Meg Ryan has Kevin Bocon number 2
         Movie courage = searchOrCreateMovie("Courage under Fire");
         searchOrCreateRole("Emma Walden", meg, courage);
@@ -24,5 +30,6 @@ public class ClarkePetersController extends ControllerBase {
         searchOrCreateRole("Prof. Willie Esterhuyse", william, endgame);
         Actor clarke = searchOrCreateActor("Clarke", "Peters");
         searchOrCreateRole("Nelson Mandela", clarke, endgame);      // Clark Peters gets number 6
+        return clarke;
     }
 }
