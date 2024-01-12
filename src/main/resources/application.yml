@@ -10,10 +10,10 @@ spring:
     show-sql: false
 cj.software.movie:
   relational-world:
-    num-actors: 100000
-    num-movies: 1000000
-    min-roles-per-movie: 25
-    max-roles-per-movie: 35
+    num-actors: 100
+    num-movies: 1000
+    min-roles-per-movie: 5
+    max-roles-per-movie: 15
     actor-family-name:
       min: 5
       max: 20
